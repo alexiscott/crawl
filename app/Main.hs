@@ -1,8 +1,50 @@
 module Main where
 
-import qualified MyLib (someFunc)
+import Helpers (getCurrentTimestamp, ignoreIrrelevantCharacters)
+import Text.HTML.Scalpel
 
 main :: IO ()
 main = do
-  putStrLn "Hello, Haskell!"
-  MyLib.someFunc
+  scrapedArticles <- scrapeURL "https://news.ycombinator.com" articles
+  currentTimeStamp <- getCurrentTimestamp
+  putStrLn "To see a list of filtered articles, \nenter 1 for long headlines, 2 for short ones."
+  result <- getLine
+  let userNum = read result :: Int
+  let action | userNum == 1 = printArticles (moreThan5Words scrapedArticles)
+             | userNum == 2 = printArticles (lessThanOrEqual5Words scrapedArticles)
+             | otherwise = putStrLn "Please try again, entering either the number 1 or 2."
+  action
+  -- Write the request timestamp to a file.
+  appendFile "scraper-log.txt" $ "The user's filter selection was: " ++ show userNum ++ ", at " ++ currentTimeStamp  ++ "\n"
+
+type Title = String
+type Rank = String
+
+data Article =
+     Article Title Rank
+      deriving (Show, Eq)
+
+articles :: Scraper String [Article]
+articles = chroots ("body" // "table" @: ["id" @= "hnmain"] // "tr" @: [hasClass "athing"]) article
+  where
+    article :: Scraper String Article
+    article = titleArticle
+
+    titleArticle :: Scraper String Article
+    titleArticle = do
+      title <- text $ "span" @: [hasClass "titleline"]
+      rank <- text $ "span" @: [hasClass "rank"]
+      return $ Article title rank
+
+printArticles :: Maybe [Article] -> IO ()
+printArticles Nothing = putStrLn "No articles found."
+printArticles (Just item) = mapM_ printIndividualArticle item
+  where
+    printIndividualArticle (Article title rank) = putStrLn $ title ++ ", ranked at " ++ rank
+
+
+moreThan5Words :: Maybe [Article] -> Maybe [Article]
+moreThan5Words = fmap (filter (\(Article title _) -> length (words (ignoreIrrelevantCharacters title)) > 5))
+
+lessThanOrEqual5Words :: Maybe [Article] -> Maybe [Article]
+lessThanOrEqual5Words = fmap (filter (\(Article title _) -> length (words (ignoreIrrelevantCharacters title)) <= 5))
