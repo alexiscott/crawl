@@ -1,0 +1,30 @@
+#+title: Architectural Decision Record for 'Crawl'
+
+In the context of deciding how the application might be used,
+I decided to create a command line interface
+To achieve the most elegant, fast, and maintainable solution
+Accepting that their might be a case for users who might have a preference for a more ubiquitous solution such as one that runs in the browser.
+
+In the context of the system used for building and packaging Haskell libraries,
+I used Cabal
+to achieve a simple and extensible solution
+Accepting that Stack could also have been an alternative.
+
+In the context of the storage of usage data,
+I decided to use a plain text file,
+to achieve a solution that a client might easily open in any standard spreadsheet application,
+Accepting that other standard solutions, such as JSON, might be more applicable in certain application environments.
+
+In the context of parsing data to a Haskell type representation,
+I decided to use Scalpel 
+To achieve reliable and generically standard code and smooth integration with an http client,
+as both http and parsing are available.
+Accepting that other solutions might achieve similar results.
+
+In the context of finding a good testing approach,
+I decided to use HUnit,
+To achieve standard unit tests, that work from Cabal,
+Accepting that the addition of QuickTest might be useful for some scenarios.
+
+
+
