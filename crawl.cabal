@@ -62,7 +62,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  MyLib
+    exposed-modules:  Helpers
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -71,7 +71,8 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.17.2.1
+    build-depends:    base == 4.*,
+                      time
 
     -- Directories containing source files.
     hs-source-dirs:   src
@@ -94,14 +95,18 @@ executable crawl
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base ^>=4.17.2.1,
-        crawl
+        base == 4.*,
+        crawl,
+        scalpel,
+        time
 
     -- Directories containing source files.
     hs-source-dirs:   app
 
     -- Base language which the package is written in.
     default-language: Haskell2010
+
+   default-extensions: OverloadedStrings
 
 test-suite crawl-test
     -- Import common warning flags.
@@ -127,5 +132,6 @@ test-suite crawl-test
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
+        base ==4.*,
+        HUnit,
         crawl
