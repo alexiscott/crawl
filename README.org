@@ -1,5 +1,6 @@
-#+title: Crawl, a web crawler for Hacker News.
+#+title: About Crawl, a command line web crawler for Hacker News
 
+* About Crawl, a command line web crawler for Hacker News
 This Haskell command line application crawls the hacker news homepage,  https://news.ycombinator.com.
 
 Running it on the command line will give a user the option to show a long list or a short list version.
