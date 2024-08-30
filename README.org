@@ -3,3 +3,6 @@
 This Haskell command line application crawls the hacker news homepage,  https://news.ycombinator.com.
 
 Running it on the command line will give a user the option to show a long list or a short list version.
+
+* FAQ
+If you are working on nixos and don't have the zlib library installed, you can run nix-shell and you will have it in your local environment. This is thanks to the default.nix file.
