@@ -1,6 +1,6 @@
 module Main where
 
-import Helpers
+import Helpers (getCommentsCount, getNumber, getPoints, getTitle)
 import System.Exit (ExitCode(..), exitSuccess, exitWith)
 import Test.HUnit
 import Text.HTML.TagSoup
@@ -25,18 +25,6 @@ tags =
   , TagText "The Points"
   , TagText "The Comments count"
   ]
-
-getNumber :: [a] -> a
-getNumber tag = tag !! 0
-
-getTitle :: [a] -> a
-getTitle tag = tag !! 1
-
-getPoints :: [a] -> a
-getPoints tag = tag !! 2
-
-getCommentsCount :: [a] -> a
-getCommentsCount tag = tag !! 3
 
 main :: IO ()
 main = do

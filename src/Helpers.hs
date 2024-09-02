@@ -3,14 +3,30 @@ module Helpers
   , getCurrentTimestamp
   , narrowTags
   , httpsClient
+  , getNumber
+  , getTitle
+  , getPoints
+  , getCommentsCount
   ) where
 
-import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.Char8 as LC
 import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
+
+-- Getters
+getNumber :: [a] -> a
+getNumber tag = tag !! 0
+
+getTitle :: [a] -> a
+getTitle tag = tag !! 1
+
+getPoints :: [a] -> a
+getPoints tag = tag !! 2
+
+getCommentsCount :: [a] -> a
+getCommentsCount tag = tag !! 3
 
 -- Narrow the HTML source to a Tag list that interests us.
 narrowTags :: String -> [[Tag String]]
