@@ -16,8 +16,8 @@ to achieve a solution that a client might easily open in any standard spreadshee
 Accepting that other standard solutions, such as JSON, might be more applicable in certain application environments.
 
 In the context of parsing data to a Haskell type representation,
-I decided to use Scalpel 
-To achieve reliable and generically standard code and smooth integration with an http client,
+I decided to use TagSoup 
+To achieve reliable and generically standard code, smooth integration with an http client and a flexible API.
 as both http and parsing are available.
 Accepting that other solutions might achieve similar results.
 
