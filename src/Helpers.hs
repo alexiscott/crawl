@@ -1,8 +1,9 @@
 module Helpers (ignoreIrrelevantCharacters,
-                getCurrentTimestamp, narrowTags) where
+                getCurrentTimestamp, narrowTags, httpsClient) where
 
 import Data.Time
 import qualified Data.ByteString.Lazy as L
+import qualified Data.ByteString.Lazy.Char8 as LC
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
@@ -26,11 +27,11 @@ getCurrentTimestamp = do
     let formattedTime = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" currentTime
     return formattedTime
 
-httpsClient :: IO ()
+-- Return the html body from a http call to the Hacker News website.
+httpsClient :: IO String
 httpsClient = do
     manager <- newManager tlsManagerSettings
-    let req = "https://news.ycombinator.com"
-    response <- httpLbs req manager
-    let htmlBody = responseBody response
-    -- L.writeFile "newscombinator.html"  htmlBody -- It can be useful to have a local copy of the source.
-    print htmlBody
+    request <- parseRequest "https://news.ycombinator.com"
+    response <- httpLbs request manager
+    let body = responseBody response
+    return $ LC.unpack body
