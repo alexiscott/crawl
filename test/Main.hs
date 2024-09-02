@@ -1,6 +1,6 @@
 module Main where
 
-import Helpers (getCommentsCount, getNumber, getPoints, getTitle)
+import Helpers
 import System.Exit (ExitCode(..), exitSuccess, exitWith)
 import Test.HUnit
 import Text.HTML.TagSoup
@@ -16,6 +16,12 @@ tests =
       maybeTagText (getPoints tags)
     , "test4" ~: "The comments, from tags" ~: Just "The Comments count" ~=?
       maybeTagText (getCommentsCount tags)
+    , "test5" ~: "Tag to number" ~: Just "A Number" ~=? tagToNumber tags
+    , "test6" ~: "Tag to title" ~: Just "A Title" ~=? tagToTitle tags
+    , "test7" ~: "Tag to points" ~: Just "The Points" ~=? tagToPoints tags
+    , "test8" ~: "Tag to comment count" ~: Just "The Comments count" ~=?
+      tagToCommentsCount tags
+    , "test9" ~: "Make an Article from tags" ~: "Article (Just \"A Number\") (Just \"A Title\") (Just \"The Points\") (Just \"The Comments count\")"  ~=?  show (makeArticle tags)
     ]
 
 tags :: [Tag String]
