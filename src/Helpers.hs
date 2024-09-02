@@ -1,9 +1,13 @@
-module Helpers (ignoreIrrelevantCharacters,
-                getCurrentTimestamp, narrowTags, httpsClient) where
+module Helpers
+  ( ignoreIrrelevantCharacters
+  , getCurrentTimestamp
+  , narrowTags
+  , httpsClient
+  ) where
 
-import Data.Time
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.Char8 as LC
+import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
@@ -17,21 +21,23 @@ narrowTags src = do
 -- Function to not count certain special character.
 ignoreIrrelevantCharacters :: String -> String
 ignoreIrrelevantCharacters [] = []
-ignoreIrrelevantCharacters (x:xs) | x == '.' || x == '_' || x == '-'  = ignoreIrrelevantCharacters xs
-                            | otherwise = x:ignoreIrrelevantCharacters xs
+ignoreIrrelevantCharacters (x:xs)
+  | x == '.' || x == '_' || x == '-' = ignoreIrrelevantCharacters xs
+  | otherwise = x : ignoreIrrelevantCharacters xs
 
 -- Function to get the current timestamp as a formatted string
 getCurrentTimestamp :: IO String
 getCurrentTimestamp = do
-    currentTime <- getCurrentTime
-    let formattedTime = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" currentTime
-    return formattedTime
+  currentTime <- getCurrentTime
+  let formattedTime =
+        formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" currentTime
+  return formattedTime
 
 -- Return the html body from a http call to the Hacker News website.
 httpsClient :: IO String
 httpsClient = do
-    manager <- newManager tlsManagerSettings
-    request <- parseRequest "https://news.ycombinator.com"
-    response <- httpLbs request manager
-    let body = responseBody response
-    return $ LC.unpack body
+  manager <- newManager tlsManagerSettings
+  request <- parseRequest "https://news.ycombinator.com"
+  response <- httpLbs request manager
+  let body = responseBody response
+  return $ LC.unpack body
