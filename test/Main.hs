@@ -21,7 +21,16 @@ tests =
     , "test7" ~: "Tag to points" ~: Just "The Points" ~=? tagToPoints tags
     , "test8" ~: "Tag to comment count" ~: Just "The Comments count" ~=?
       tagToCommentsCount tags
-    , "test9" ~: "Make an Article from tags" ~: "Article (Just \"A Number\") (Just \"A Title\") (Just \"The Points\") (Just \"The Comments count\")"  ~=?  show (makeArticle tags)
+    , "test9" ~: "Make an Article from tags" ~:
+      "Article (Just \"A Number\") (Just \"A Title\") (Just \"The Points\") (Just \"The Comments count\")" ~=?
+      show (makeArticle tags)
+    , "test10" ~: "Expect 30 articles" ~: 30 ~=?
+      (length $ narrowTags hackerNewsSample)
+    , "test11" ~: "find number" ~: "1." ~=? findNumber
+    , "test12" ~: "find title" ~: "End of the Road: An AnandTech Farewell" ~=?
+      findTitle
+    , "test13" ~: "find points" ~: "725 points" ~=? findPoints
+    , "test14" ~: "find comments count" ~: "157" ~=? findCommentsCount
     ]
 
 tags :: [Tag String]
@@ -31,6 +40,42 @@ tags =
   , TagText "The Points"
   , TagText "The Comments count"
   ]
+
+-- Functions for getting the relevant parts out of the HTML.
+findNumber :: String
+findNumber =
+  unwords . words . innerText . take 2 . head $
+  partitions
+    (~== ("<span class=rank>" :: String))
+    (head (narrowTags hackerNewsSample))
+
+findTitle :: String
+findTitle =
+  innerText $
+  take 4 $
+  head $
+  partitions
+    (~== ("<span class=titleline>" :: String))
+    (head (narrowTags hackerNewsSample))
+
+findPoints :: String
+findPoints =
+  innerText $
+  drop 1 $
+  take 2 $
+  head $
+  partitions
+    (~== ("<span class=score>" :: String))
+    (head (narrowTags hackerNewsSample))
+
+findCommentsCount :: String
+findCommentsCount =
+  head . words . innerText $
+  drop 14 $
+  head $
+  partitions
+    (~== ("<span class=age>" :: String))
+    (head (narrowTags hackerNewsSample))
 
 main :: IO ()
 main = do
