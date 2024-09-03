@@ -20,6 +20,7 @@ module Helpers
   ) where
 
 import qualified Data.ByteString.Lazy.Char8 as LC
+import Data.Maybe
 import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
@@ -27,24 +28,32 @@ import Text.HTML.TagSoup
 
 -- Functions for getting the relevant parts out of a Tag String from an individual Article.
 findNumber :: [Tag String] -> Maybe String
-findNumber tags =
-  maybeTagText . head . drop 1 . take 2 . head $
-  partitions (~== ("<span class=rank>" :: String)) tags
+findNumber tags = do
+  partition <-
+    listToMaybe $ partitions (~== ("<span class=rank>" :: String)) tags
+  secondTag <- listToMaybe $ drop 1 . take 2 $ partition
+  maybeTagText secondTag
 
 findTitle :: [Tag String] -> Maybe String
-findTitle tags =
-  maybeTagText . head . drop 2 . head $
-  partitions (~== ("<span class=titleline>" :: String)) tags
+findTitle tags = do
+  partition <-
+    listToMaybe $ partitions (~== ("<span class=titleline>" :: String)) tags
+  secondTag <- listToMaybe $ drop 2 $ partition
+  maybeTagText secondTag
 
 findPoints :: [Tag String] -> Maybe String
-findPoints tags =
-  maybeTagText . head . drop 1 . take 2 . head $
-  partitions (~== ("<span class=score>" :: String)) tags
+findPoints tags = do
+  partition <-
+    listToMaybe $ partitions (~== ("<span class=score>" :: String)) tags
+  secondTag <- listToMaybe $ drop 1 . take 2 $ partition
+  maybeTagText secondTag
 
 findCommentsCount :: [Tag String] -> Maybe String
-findCommentsCount tags =
-  maybeTagText . head . drop 14 . head $
-  partitions (~== ("<span class=age>" :: String)) tags
+findCommentsCount tags = do
+  partition <-
+    listToMaybe $ partitions (~== ("<span class=age>" :: String)) tags
+  secondTag <- listToMaybe $ drop 14 $ partition
+  maybeTagText secondTag
 
 -- Getters
 getNumber :: [a] -> a
