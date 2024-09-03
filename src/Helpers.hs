@@ -3,6 +3,10 @@ module Helpers
   , getCurrentTimestamp
   , narrowTags
   , httpsClient
+  , findNumber
+  , findTitle
+  , findPoints
+  , findCommentsCount
   , getNumber
   , getTitle
   , getPoints
@@ -20,6 +24,35 @@ import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
+
+-- Functions for getting the relevant parts out of the HTML.
+findNumber :: String -> Maybe String
+findNumber src =
+  maybeTagText . head . drop 1 . take 2 . head $
+  partitions
+    (~== ("<span class=rank>" :: String))
+    (head (narrowTags src))
+
+findTitle :: String -> Maybe String
+findTitle src =
+  maybeTagText . head . drop 2 . head $
+  partitions
+    (~== ("<span class=titleline>" :: String))
+    (head (narrowTags src))
+
+findPoints :: String -> Maybe String
+findPoints src =
+  maybeTagText . head . drop 1 . take 2 . head $
+  partitions
+    (~== ("<span class=score>" :: String))
+    (head (narrowTags src))
+
+findCommentsCount :: String -> Maybe String
+findCommentsCount src =
+  maybeTagText . head . drop 14 . head $
+  partitions
+    (~== ("<span class=age>" :: String))
+    (head (narrowTags src))
 
 -- Getters
 getNumber :: [a] -> a
