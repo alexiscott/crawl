@@ -13,6 +13,7 @@ module Helpers
   , httpsClient
   , makeArticle
   , narrowTags
+  , numericCommentCount
   , tagToCommentsCount
   , tagToNumber
   , tagToPoints
@@ -26,7 +27,7 @@ import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
-import Text.Regex.TDFA
+import Text.Read (readMaybe)
 
 -- Retrieve all Articles from the HMTL source that is provided.
 allArticles :: [[Tag String]] -> [Article]
@@ -109,13 +110,11 @@ makeArticle tags =
     (numericCommentCount (findCommentsCount tags))
 
 numericCommentCount :: Maybe String -> Maybe Int
-numericCommentCount (Just c) = Just (read (commentRegex c))
-numericCommentCount Nothing = Just 10000
-
--- Example input: Just "157\160comments"
-commentRegex :: String -> String
-commentRegex c =
-  c =~ ("[[:digit:]]+" :: String)
+numericCommentCount (Just c) =
+    case words c of
+        (x:_) -> readMaybe x  -- Try to read the first word as an Int
+        [] -> Nothing  -- Handle the case where the string is empty or doesn't have words
+numericCommentCount Nothing = Nothing
 
 -- Narrow the HTML source to a Tag list that interests us.
 narrowTags :: String -> [[Tag String]]

@@ -76,8 +76,7 @@ library
                       tagsoup,
                       http-client,
                       http-client-tls,
-                      bytestring,
-                      regex-tdfa
+                      bytestring
 
     -- Directories containing source files.
     hs-source-dirs:   src

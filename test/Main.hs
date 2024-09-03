@@ -32,8 +32,10 @@ tests =
     , "test13" ~: "find points" ~: Just "725 points" ~=? findPoints mockArticle
     , "test14" ~: "find comments count" ~: Just "157\160comments" ~=?
       findCommentsCount mockArticle
-    , "test15" ~: "A list of lists of articles" ~: 30 ~=?
+     , "test15" ~: "A list of lists of articles" ~: 30 ~=?
       (length $ allArticles (narrowTags hackerNewsSample))
+     , "test16" ~: "numericCommentCount with Int" ~: Just 12 ~=? (numericCommentCount $ (Just "12 comments"))
+     , "test17" ~: "numericCommentCount with no Int" ~: Nothing ~=? (numericCommentCount $ (Just "comments"))
     ]
 
 tags :: [Tag String]
