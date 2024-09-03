@@ -14,6 +14,7 @@ module Helpers
   , makeArticle
   , narrowTags
   , numericCommentCount
+  , printArticles
   , tagToCommentsCount
   , tagToNumber
   , tagToPoints
@@ -28,6 +29,19 @@ import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
 import Text.Read (readMaybe)
+
+-- Presenting Articles.
+printArticle :: Article -> String
+printArticle (Article mRank mTitle mPoints mComments) =
+  "Rank: " ++ fromMaybe "Rank not available" mRank ++ "\n" ++
+  "Title: " ++ fromMaybe "Title not available" mTitle ++ "\n" ++
+  "Points: " ++ fromMaybe "No points yet" mPoints ++ "\n" ++
+  "Comments: " ++ case mComments of
+    Just c  -> (show c) ++ " comments\n\n"
+    Nothing -> "No comments yet\n\n"
+
+printArticles :: [Article] -> String
+printArticles articles = unlines $ map printArticle articles
 
 -- Retrieve all Articles from the HMTL source that is provided.
 allArticles :: [[Tag String]] -> [Article]

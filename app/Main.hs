@@ -2,12 +2,13 @@ module Main where
 
 import Text.HTML.TagSoup
 import Helpers (getCurrentTimestamp,
+                allArticles,
                 ignoreIrrelevantCharacters,
                 httpsClient,
+                printArticles,
                 narrowTags)
 
-
-main :: IO [[Tag String]]
+main :: IO ()
 main = do
   -- scrapedArticles <- scrapeURL "https://news.ycombinator.com" articles
   -- currentTimeStamp <- getCurrentTimestamp
@@ -22,7 +23,7 @@ main = do
   -- appendFile "scraper-log.txt" $ "The user's filter selection was: " ++ show userNum ++ ", at " ++ currentTimeStamp  ++ "\n"
   html <- httpsClient
   let tags = narrowTags html
-  return tags
+  putStrLn $ printArticles $ allArticles tags
 
 
 -- main' :: [Tag String]
