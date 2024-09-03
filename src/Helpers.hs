@@ -11,6 +11,7 @@ module Helpers
   , getPoints
   , getTitle
   , httpsClient
+  , sortArticlesByComments
   , makeArticle
   , lessThanOrEqual5Words
   , moreThan5Words
@@ -119,7 +120,7 @@ type CommentCount = Maybe Int
 
 data Article =
   Article Title Rank Score CommentCount
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord)
 
 -- Make an Article.
 makeArticle :: [Tag String] -> Article
@@ -148,6 +149,20 @@ moreThan5Words = filter (\(Article _ (Just title) _ _) -> length (words (ignoreI
 
 lessThanOrEqual5Words :: [Article] -> [Article]
 lessThanOrEqual5Words = filter (\(Article _ (Just title) _ _) -> length (words (ignoreIrrelevantCharacters title)) <= 5)
+
+
+getCommentsCountFromArticle :: Article -> Int
+getCommentsCountFromArticle (Article _ _ _ (Just commentsCount)) = commentsCount
+getCommentsCountFromArticle (Article _ _ _ Nothing) = 0
+
+sortArticlesByComments :: [Article] -> [Article]
+sortArticlesByComments [] = []
+sortArticlesByComments (p:xs) =
+    sortArticlesByComments lesser ++ [p] ++ sortArticlesByComments greater
+  where
+    count = getCommentsCountFromArticle p
+    lesser  = filter (\x -> getCommentsCountFromArticle x > count) xs
+    greater = filter (\x -> getCommentsCountFromArticle x <= count) xs
 
 -- Function to not count certain special character.
 ignoreIrrelevantCharacters :: String -> String
