@@ -16,7 +16,7 @@ module Helpers
   , tagToTitle
   , tagToPoints
   , tagToCommentsCount
-  , Article
+  , Article(Article)
   ) where
 
 import qualified Data.ByteString.Lazy.Char8 as LC
@@ -25,34 +25,26 @@ import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
 
--- Functions for getting the relevant parts out of the HTML.
-findNumber :: String -> Maybe String
-findNumber src =
+-- Functions for getting the relevant parts out of a Tag String from an individual Article.
+findNumber :: [Tag String] -> Maybe String
+findNumber tags =
   maybeTagText . head . drop 1 . take 2 . head $
-  partitions
-    (~== ("<span class=rank>" :: String))
-    (head (narrowTags src))
+  partitions (~== ("<span class=rank>" :: String)) tags
 
-findTitle :: String -> Maybe String
-findTitle src =
+findTitle :: [Tag String] -> Maybe String
+findTitle tags =
   maybeTagText . head . drop 2 . head $
-  partitions
-    (~== ("<span class=titleline>" :: String))
-    (head (narrowTags src))
+  partitions (~== ("<span class=titleline>" :: String)) tags
 
-findPoints :: String -> Maybe String
-findPoints src =
+findPoints :: [Tag String] -> Maybe String
+findPoints tags =
   maybeTagText . head . drop 1 . take 2 . head $
-  partitions
-    (~== ("<span class=score>" :: String))
-    (head (narrowTags src))
+  partitions (~== ("<span class=score>" :: String)) tags
 
-findCommentsCount :: String -> Maybe String
-findCommentsCount src =
+findCommentsCount :: [Tag String] -> Maybe String
+findCommentsCount tags =
   maybeTagText . head . drop 14 . head $
-  partitions
-    (~== ("<span class=age>" :: String))
-    (head (narrowTags src))
+  partitions (~== ("<span class=age>" :: String)) tags
 
 -- Getters
 getNumber :: [a] -> a
@@ -94,8 +86,12 @@ data Article =
 
 -- Make an Article.
 makeArticle :: [Tag String] -> Article
-makeArticle t =
-  Article (tagToNumber t) (tagToTitle t) (tagToPoints t) (tagToCommentsCount t)
+makeArticle tags =
+  Article
+    (findNumber tags)
+    (findTitle tags)
+    (findPoints tags)
+    (findCommentsCount tags)
 
 -- Narrow the HTML source to a Tag list that interests us.
 narrowTags :: String -> [[Tag String]]
