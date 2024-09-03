@@ -26,6 +26,7 @@ import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
+import Text.Regex.TDFA
 
 -- Retrieve all Articles from the HMTL source that is provided.
 allArticles :: [[Tag String]] -> [Article]
@@ -92,7 +93,7 @@ type Rank = Maybe String
 
 type Score = Maybe String
 
-type CommentCount = Maybe String
+type CommentCount = Maybe Int
 
 data Article =
   Article Title Rank Score CommentCount
@@ -105,7 +106,16 @@ makeArticle tags =
     (findNumber tags)
     (findTitle tags)
     (findPoints tags)
-    (findCommentsCount tags)
+    (numericCommentCount (findCommentsCount tags))
+
+numericCommentCount :: Maybe String -> Maybe Int
+numericCommentCount (Just c) = Just (read (commentRegex c))
+numericCommentCount Nothing = Just 10000
+
+-- Example input: Just "157\160comments"
+commentRegex :: String -> String
+commentRegex c =
+  c =~ ("[[:digit:]]+" :: String)
 
 -- Narrow the HTML source to a Tag list that interests us.
 narrowTags :: String -> [[Tag String]]

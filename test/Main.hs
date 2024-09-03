@@ -22,7 +22,7 @@ tests =
     , "test8" ~: "Tag to comment count" ~: Just "The Comments count" ~=?
       tagToCommentsCount tags
     , "test9" ~: "Make an Article from tags" ~:
-      "Article (Just \"1.\") (Just \"End of the Road: An AnandTech Farewell\") (Just \"725 points\") (Just \"157\\160comments\")" ~=?
+      "Article (Just \"1.\") (Just \"End of the Road: An AnandTech Farewell\") (Just \"725 points\") (Just 157)" ~=?
       show (makeArticle mockArticle)
     , "test10" ~: "Expect 30 articles" ~: 30 ~=?
       (length $ narrowTags hackerNewsSample)
