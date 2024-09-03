@@ -26,10 +26,10 @@ module Helpers
   , Article(Article)
   ) where
 
-import qualified Data.Text.Lazy as TL
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.Text.Lazy.Encoding as TLE
 import Data.Maybe
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
 import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
@@ -42,22 +42,26 @@ decodeBody body = TL.unpack $ TLE.decodeUtf8 body
 -- Presenting Articles.
 printArticle :: Article -> String
 printArticle (Article mRank mTitle mPoints mComments) =
-  "Rank: " ++ rankStr ++ "\n" ++
-  "Title: " ++ titleStr ++ "\n" ++
-  "Points count: " ++ pointsStr ++
-  "Comment count: " ++ commentsStr ++ "\n\n"
+  "Rank: " ++
+  rankStr ++
+  "\n" ++
+  "Title: " ++
+  titleStr ++
+  "\n" ++
+  "Points count: " ++ pointsStr ++ "Comment count: " ++ commentsStr ++ "\n\n"
   where
-    rankStr     | Just rank <- mRank     = rank
-                | otherwise              = "Rank not available"
-
-    titleStr    | Just title <- mTitle   = title
-                | otherwise              = "Title not available"
-
-    pointsStr   | Just points <- mPoints = show points ++ " points\n"
-                | otherwise              = "No points\n"
-
-    commentsStr | Just comments <- mComments = show comments ++ " comments\n\n"
-                | otherwise                   = "No comments yet\n\n"
+    rankStr
+      | Just rank <- mRank = rank
+      | otherwise = "Rank not available"
+    titleStr
+      | Just title <- mTitle = title
+      | otherwise = "Title not available"
+    pointsStr
+      | Just points <- mPoints = show points ++ " points\n"
+      | otherwise = "No points\n"
+    commentsStr
+      | Just comments <- mComments = show comments ++ " comments\n\n"
+      | otherwise = "No comments yet\n\n"
 
 printArticles :: [Article] -> String
 printArticles articles = unlines $ map printArticle articles
@@ -144,9 +148,9 @@ makeArticle tags =
 
 numericCount :: Maybe String -> Maybe Int
 numericCount (Just c) =
-    case words c of
-        (x:_) -> readMaybe x  -- Try to read the first word as an Int.
-        [] -> Nothing  -- Handle the case where the string is empty.
+  case words c of
+    (x:_) -> readMaybe x -- Try to read the first word as an Int.
+    [] -> Nothing -- Handle the case where the string is empty.
 numericCount Nothing = Nothing
 
 -- Narrow the HTML source to a Tag list that interests us.
@@ -155,12 +159,19 @@ narrowTags src = do
   let tags = parseTags src
   partitions (~== ("<tr class=athing>" :: String)) tags
 
+filterByWordCount :: (Int -> Int -> Bool) -> [Article] -> [Article]
+filterByWordCount cmp = filter hasWordCount
+  where
+    hasWordCount :: Article -> Bool
+    hasWordCount (Article _ (Just title) _ _) =
+      length (words (ignoreIrrelevantCharacters title)) `cmp` 5
+    hasWordCount (Article _ Nothing _ _) = False
+
 moreThan5Words :: [Article] -> [Article]
-moreThan5Words = filter (\(Article _ (Just title) _ _) -> length (words (ignoreIrrelevantCharacters title)) > 5)
+moreThan5Words = filterByWordCount (>)
 
 lessThanOrEqual5Words :: [Article] -> [Article]
-lessThanOrEqual5Words = filter (\(Article _ (Just title) _ _) -> length (words (ignoreIrrelevantCharacters title)) <= 5)
-
+lessThanOrEqual5Words = filterByWordCount (<=)
 
 getCommentsCountFromArticle :: Article -> Int
 getCommentsCountFromArticle (Article _ _ _ (Just commentsCount)) = commentsCount
@@ -173,21 +184,20 @@ getPointsCountFromArticle (Article _ _ Nothing _) = 0
 sortArticlesByComments :: [Article] -> [Article]
 sortArticlesByComments [] = []
 sortArticlesByComments (p:xs) =
-    sortArticlesByComments lesser ++ [p] ++ sortArticlesByComments greater
+  sortArticlesByComments lesser ++ [p] ++ sortArticlesByComments greater
   where
     count = getCommentsCountFromArticle p
-    lesser  = filter (\x -> getCommentsCountFromArticle x <= count) xs
+    lesser = filter (\x -> getCommentsCountFromArticle x <= count) xs
     greater = filter (\x -> getCommentsCountFromArticle x > count) xs
 
 sortArticlesByPoints :: [Article] -> [Article]
 sortArticlesByPoints [] = []
 sortArticlesByPoints (p:xs) =
-    sortArticlesByPoints lesser ++ [p] ++ sortArticlesByPoints greater
+  sortArticlesByPoints lesser ++ [p] ++ sortArticlesByPoints greater
   where
     count = getPointsCountFromArticle p
-    lesser  = filter (\x -> getPointsCountFromArticle x <= count) xs
+    lesser = filter (\x -> getPointsCountFromArticle x <= count) xs
     greater = filter (\x -> getPointsCountFromArticle x > count) xs
-
 
 -- Function to not count certain special character.
 ignoreIrrelevantCharacters :: String -> String
