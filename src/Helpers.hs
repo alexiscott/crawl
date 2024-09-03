@@ -22,13 +22,18 @@ module Helpers
   , Article(Article)
   ) where
 
-import qualified Data.ByteString.Lazy.Char8 as LC
+import qualified Data.Text.Lazy as TL
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.Text.Lazy.Encoding as TLE
 import Data.Maybe
 import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
 import Text.Read (readMaybe)
+
+decodeBody :: BL.ByteString -> String
+decodeBody body = TL.unpack $ TLE.decodeUtf8 body
 
 -- Presenting Articles.
 printArticle :: Article -> String
@@ -158,4 +163,4 @@ httpsClient = do
   request <- parseRequest "https://news.ycombinator.com"
   response <- httpLbs request manager
   let body = responseBody response
-  return $ LC.unpack body
+  return $ decodeBody body
