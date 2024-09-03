@@ -12,6 +12,8 @@ module Helpers
   , getTitle
   , httpsClient
   , makeArticle
+  , lessThanOrEqual5Words
+  , moreThan5Words
   , narrowTags
   , numericCommentCount
   , printArticles
@@ -41,7 +43,7 @@ printArticle (Article mRank mTitle mPoints mComments) =
   "Rank: " ++ fromMaybe "Rank not available" mRank ++ "\n" ++
   "Title: " ++ fromMaybe "Title not available" mTitle ++ "\n" ++
   "Points: " ++ fromMaybe "No points yet" mPoints ++ "\n" ++
-  "Comments: " ++ case mComments of
+  "Comment count: " ++ case mComments of
     Just c  -> (show c) ++ " comments\n\n"
     Nothing -> "No comments yet\n\n"
 
@@ -140,6 +142,12 @@ narrowTags :: String -> [[Tag String]]
 narrowTags src = do
   let tags = parseTags src
   partitions (~== ("<tr class=athing>" :: String)) tags
+
+moreThan5Words :: [Article] -> [Article]
+moreThan5Words = filter (\(Article _ (Just title) _ _) -> length (words (ignoreIrrelevantCharacters title)) > 5)
+
+lessThanOrEqual5Words :: [Article] -> [Article]
+lessThanOrEqual5Words = filter (\(Article _ (Just title) _ _) -> length (words (ignoreIrrelevantCharacters title)) <= 5)
 
 -- Function to not count certain special character.
 ignoreIrrelevantCharacters :: String -> String
