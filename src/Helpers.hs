@@ -1,21 +1,22 @@
 module Helpers
   ( ignoreIrrelevantCharacters
-  , getCurrentTimestamp
-  , narrowTags
-  , httpsClient
-  , findNumber
-  , findTitle
-  , findPoints
+  , allArticles
   , findCommentsCount
-  , getNumber
-  , getTitle
-  , getPoints
+  , findNumber
+  , findPoints
+  , findTitle
   , getCommentsCount
+  , getCurrentTimestamp
+  , getNumber
+  , getPoints
+  , getTitle
+  , httpsClient
   , makeArticle
-  , tagToNumber
-  , tagToTitle
-  , tagToPoints
+  , narrowTags
   , tagToCommentsCount
+  , tagToNumber
+  , tagToPoints
+  , tagToTitle
   , Article(Article)
   ) where
 
@@ -25,6 +26,10 @@ import Data.Time
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Text.HTML.TagSoup
+
+-- Retrieve all Articles from the HMTL source that is provided.
+allArticles :: [[Tag String]] -> [Article]
+allArticles tags = map makeArticle tags
 
 -- Functions for getting the relevant parts out of a Tag String from an individual Article.
 findNumber :: [Tag String] -> Maybe String
