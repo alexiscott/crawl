@@ -2,6 +2,7 @@ module Helpers
   ( ignoreIrrelevantCharacters
   , allArticles
   , findCommentsCount
+  , findHref
   , findNumber
   , findPoints
   , findTitle
@@ -41,14 +42,17 @@ decodeBody body = TL.unpack $ TLE.decodeUtf8 body
 
 -- Presenting Articles.
 printArticle :: Article -> String
-printArticle (Article mRank mTitle mPoints mComments) =
+printArticle (Article mRank mTitle mPoints mComments mHref) =
   "Rank: " ++
   rankStr ++
   "\n" ++
   "Title: " ++
   titleStr ++
   "\n" ++
-  "Points count: " ++ pointsStr ++ "Comment count: " ++ commentsStr ++ "\n\n"
+  "Link: " ++
+  hrefStr ++
+  "\n" ++
+  "Points count: " ++ pointsStr ++ "Comment count: " ++ commentsStr ++ "\n"
   where
     rankStr
       | Just rank <- mRank = rank
@@ -61,7 +65,10 @@ printArticle (Article mRank mTitle mPoints mComments) =
       | otherwise = "No points\n"
     commentsStr
       | Just comments <- mComments = show comments ++ " comments\n\n"
-      | otherwise = "No comments yet\n\n"
+      | otherwise = "No comments yet\n"
+    hrefStr
+      | Just href <- mHref = href
+      | otherwise = "Link not available"
 
 printArticles :: [Article] -> String
 printArticles articles = unlines $ map printArticle articles
@@ -99,6 +106,12 @@ findCommentsCount tags = do
   secondTag <- listToMaybe $ drop 14 $ partition
   maybeTagText secondTag
 
+findHref :: [Tag String] -> Maybe String
+findHref tags = do
+  firstPartition <- listToMaybe (partitions (~== ("<span class=titleline>" :: String)) tags)
+  secondElement <- listToMaybe (drop 1 firstPartition)
+  return $ fromAttrib "href" secondElement
+
 -- Getters
 getNumber :: [a] -> a
 getNumber tag = tag !! 0
@@ -133,8 +146,10 @@ type Score = Maybe Int
 
 type CommentCount = Maybe Int
 
+type Href = Maybe String
+
 data Article =
-  Article Title Rank Score CommentCount
+  Article Title Rank Score CommentCount Href
   deriving (Show, Eq, Ord)
 
 -- Make an Article.
@@ -145,6 +160,7 @@ makeArticle tags =
     (findTitle tags)
     (numericCount (findPoints tags))
     (numericCount (findCommentsCount tags))
+    (findHref tags)
 
 numericCount :: Maybe String -> Maybe Int
 numericCount (Just c) =
@@ -163,9 +179,9 @@ filterByWordCount :: (Int -> Int -> Bool) -> [Article] -> [Article]
 filterByWordCount cmp = filter hasWordCount
   where
     hasWordCount :: Article -> Bool
-    hasWordCount (Article _ (Just title) _ _) =
+    hasWordCount (Article _ (Just title) _ _ _) =
       length (words (ignoreIrrelevantCharacters title)) `cmp` 5
-    hasWordCount (Article _ Nothing _ _) = False
+    hasWordCount (Article _ Nothing _ _ _) = False
 
 moreThan5Words :: [Article] -> [Article]
 moreThan5Words = filterByWordCount (>)
@@ -174,12 +190,12 @@ lessThanOrEqual5Words :: [Article] -> [Article]
 lessThanOrEqual5Words = filterByWordCount (<=)
 
 getCommentsCountFromArticle :: Article -> Int
-getCommentsCountFromArticle (Article _ _ _ (Just commentsCount)) = commentsCount
-getCommentsCountFromArticle (Article _ _ _ Nothing) = 0
+getCommentsCountFromArticle (Article _ _ _ (Just commentsCount) _) = commentsCount
+getCommentsCountFromArticle (Article _ _ _ Nothing _) = 0
 
 getPointsCountFromArticle :: Article -> Int
-getPointsCountFromArticle (Article _ _ (Just pointsCount) _) = pointsCount
-getPointsCountFromArticle (Article _ _ Nothing _) = 0
+getPointsCountFromArticle (Article _ _ (Just pointsCount) _ _) = pointsCount
+getPointsCountFromArticle (Article _ _ Nothing _ _) = 0
 
 sortArticlesByComments :: [Article] -> [Article]
 sortArticlesByComments [] = []
